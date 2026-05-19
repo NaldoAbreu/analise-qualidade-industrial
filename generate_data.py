@@ -3,56 +3,56 @@ import numpy as np
 import sqlite3
 from datetime import datetime, timedelta
 
-# Configurações
+# Settings
 np.random.seed(42)
 num_records = 1000
 start_date = datetime(2024, 1, 1)
 
-# 1. Gerar Produtos
-produtos = pd.DataFrame({
-    'id_produto': range(1, 11),
-    'nome_produto': [f'Produto {chr(65+i)}' for i in range(10)],
-    'custo_unitario_retrabalho': np.random.uniform(50, 200, 10).round(2)
+# 1. Generate Products
+products = pd.DataFrame({
+    'product_id': range(1, 11),
+    'product_name': [f'Product {chr(65+i)}' for i in range(10)],
+    'unit_rework_cost': np.random.uniform(50, 200, 10).round(2)
 })
 
-# 2. Gerar Linhas de Produção
-linhas = pd.DataFrame({
-    'id_linha': range(1, 6),
-    'nome_linha': [f'Linha {i}' for i in range(1, 6)]
+# 2. Generate Production Lines
+lines = pd.DataFrame({
+    'line_id': range(1, 6),
+    'line_name': [f'Line {i}' for i in range(1, 6)]
 })
 
-# 3. Gerar Inspeções e Defeitos
-def_types = ['Arranhão', 'Fissura', 'Dimensão Incorreta', 'Cor Fora do Padrão', 'Rebarba']
-turnos = ['Manhã', 'Tarde', 'Noite']
+# 3. Generate Inspections and Defects
+def_types = ['Scratch', 'Crack', 'Incorrect Dimension', 'Color Off-Standard', 'Burr']
+shifts = ['Morning', 'Afternoon', 'Night']
 
-data_inspecoes = []
+inspection_data = []
 for i in range(num_records):
-    data_inspecao = start_date + timedelta(days=np.random.randint(0, 120), hours=np.random.randint(0, 24))
-    id_produto = np.random.randint(1, 11)
-    id_linha = np.random.randint(1, 6)
-    turno = turnos[np.random.randint(0, 3)]
+    inspection_date = start_date + timedelta(days=np.random.randint(0, 120), hours=np.random.randint(0, 24))
+    product_id = np.random.randint(1, 11)
+    line_id = np.random.randint(1, 6)
+    shift = shifts[np.random.randint(0, 3)]
     
-    # Simular taxa de defeito (ex: 15% de chance de defeito)
-    tem_defeito = np.random.random() < 0.15
-    tipo_defeito = np.random.choice(def_types) if tem_defeito else None
+    # Simulate defect rate (e.g., 15% chance of defect)
+    has_defect = np.random.random() < 0.15
+    defect_type = np.random.choice(def_types) if has_defect else None
     
-    data_inspecoes.append({
-        'id_inspecao': i + 1,
-        'data': data_inspecao,
-        'id_produto': id_produto,
-        'id_linha': id_linha,
-        'turno': turno,
-        'status': 'Defeituoso' if tem_defeito else 'OK',
-        'tipo_defeito': tipo_defeito
+    inspection_data.append({
+        'inspection_id': i + 1,
+        'date': inspection_date,
+        'product_id': product_id,
+        'line_id': line_id,
+        'shift': shift,
+        'status': 'Defective' if has_defect else 'OK',
+        'defect_type': defect_type
     })
 
-inspecoes = pd.DataFrame(data_inspecoes)
+inspections = pd.DataFrame(inspection_data)
 
-# Salvar em SQLite
-conn = sqlite3.connect('/home/ubuntu/analise_qualidade_industrial/data/qualidade.db')
-produtos.to_sql('produtos', conn, if_exists='replace', index=False)
-linhas.to_sql('linhas', conn, if_exists='replace', index=False)
-inspecoes.to_sql('inspecoes', conn, if_exists='replace', index=False)
+# Save to SQLite
+conn = sqlite3.connect('/home/ubuntu/analise_qualidade_industrial/data/quality.db')
+products.to_sql('products', conn, if_exists='replace', index=False)
+lines.to_sql('lines', conn, if_exists='replace', index=False)
+inspections.to_sql('inspections', conn, if_exists='replace', index=False)
 conn.close()
 
-print("Banco de dados SQLite criado com sucesso em /home/ubuntu/analise_qualidade_industrial/data/qualidade.db")
+print("SQLite database successfully created at /home/ubuntu/analise_qualidade_industrial/data/quality.db")
